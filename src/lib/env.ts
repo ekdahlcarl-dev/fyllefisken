@@ -1,7 +1,11 @@
 const LOCAL_URL = "http://localhost:3000";
 
 function normalizeUrl(value: string): string {
-  const withProtocol = value.startsWith("http://") || value.startsWith("https://") ? value : `https://${value}`;
+  const withProtocol =
+    value.startsWith("http://") || value.startsWith("https://")
+      ? value
+      : `https://${value}`;
+
   return new URL(withProtocol).origin;
 }
 
