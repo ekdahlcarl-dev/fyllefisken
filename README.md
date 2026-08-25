@@ -47,6 +47,8 @@ Secrets belong in local `.env.local` files or Vercel Environment Variables. `.en
 5. Keep Git integration enabled so every pull request receives a Preview Deployment and `main` deploys to Production.
 6. Verify `/api/health` after each environment is deployed.
 
+The repository is connected to the Vercel project `fyllefisken` in the `Calle` team. Git pushes to feature branches create Preview Deployments, while `main` is the Production branch.
+
 ## Continuous integration
 
 GitHub Actions validates pull requests and pushes to `main` with TypeScript checks, ESLint, Prettier and a production Next.js build.
