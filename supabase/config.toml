@@ -1,0 +1,6 @@
+project_id = "urlmipmqbcxwniieqatr"
+
+[auth]
+site_url = "http://localhost:3000"
+enable_signup = false
+additional_redirect_urls = ["http://localhost:3000/auth/confirm"]
