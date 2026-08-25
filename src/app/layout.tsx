@@ -13,7 +13,9 @@ export const metadata: Metadata = {
   description: "Fisketävlingar, resultat och prestige bland vänner.",
 };
 
-export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
+export default function RootLayout({
+  children,
+}: Readonly<{ children: ReactNode }>) {
   return (
     <html lang="sv">
       <body>
@@ -23,7 +25,11 @@ export default function RootLayout({ children }: Readonly<{ children: ReactNode 
         <div className="site-shell">
           <header className="site-header">
             <div className="container header-inner">
-              <Link className="brand" href="/" aria-label="FylleFisken startsida">
+              <Link
+                className="brand"
+                href="/"
+                aria-label="FylleFisken startsida"
+              >
                 <span aria-hidden="true">🎣</span> FylleFisken
               </Link>
               <nav aria-label="Huvudnavigation">
