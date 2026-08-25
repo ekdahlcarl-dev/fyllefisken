@@ -12,21 +12,21 @@
     "format:check": "prettier --check .",
     "check": "npm run typecheck && npm run lint && npm run format:check && npm run build"
   },
-  "engines": {
-    "node": "24.x"
-  },
+  "engines": { "node": "24.x" },
   "dependencies": {
-    "next": "^16.3.0",
-    "react": "^19.2.0",
-    "react-dom": "^19.2.0"
+    "@supabase/ssr": "0.7.0",
+    "@supabase/supabase-js": "2.57.4",
+    "next": "16.3.0",
+    "react": "19.2.0",
+    "react-dom": "19.2.0"
   },
   "devDependencies": {
-    "@types/node": "^24.0.0",
-    "@types/react": "^19.0.0",
-    "@types/react-dom": "^19.0.0",
-    "eslint": "^9.0.0",
-    "eslint-config-next": "^16.3.0",
-    "prettier": "^3.6.0",
-    "typescript": "^5.9.0"
+    "@types/node": "24.0.0",
+    "@types/react": "19.0.0",
+    "@types/react-dom": "19.0.0",
+    "eslint": "9.0.0",
+    "eslint-config-next": "16.3.0",
+    "prettier": "3.6.0",
+    "typescript": "5.9.0"
   }
 }
