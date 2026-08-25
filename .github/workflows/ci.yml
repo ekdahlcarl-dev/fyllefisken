@@ -22,6 +22,6 @@ jobs:
       - name: Lint
         run: npm run lint
       - name: Formatting
-        run: npm run format && git diff --exit-code
+        run: npm run format:check
       - name: Build
         run: npm run build
