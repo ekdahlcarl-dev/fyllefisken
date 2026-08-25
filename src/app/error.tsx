@@ -15,11 +15,7 @@ export default function ErrorPage({
           Försök igen. Om problemet kvarstår kan vi felsöka deploymenten via
           health-endpointen och Vercel-loggarna.
         </p>
-        <button
-          className="button button-primary"
-          type="button"
-          onClick={reset}
-        >
+        <button className="button button-primary" type="button" onClick={reset}>
           Försök igen
         </button>
       </div>
