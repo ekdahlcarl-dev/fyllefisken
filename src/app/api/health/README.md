@@ -1,0 +1,1 @@
+`/api/health/auth` checks environment configuration. `/api/health/supabase` checks anonymous Data API reachability while RLS prevents data disclosure. `/api/health/private` must return 401 without an authenticated member session.
