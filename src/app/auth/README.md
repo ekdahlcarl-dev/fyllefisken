@@ -1,0 +1,1 @@
+Invite links are verified by `/auth/confirm`, which exchanges the hashed token for a server-managed Supabase session. Successful invitations continue to `/auth/set-password`; invalid or expired links return to the friendly login error state.
