@@ -8,8 +8,10 @@ export async function setPassword(formData: FormData) {
   if (password.length < 10) redirect("/auth/set-password?error=weak-password");
 
   const supabase = await createClient();
-  const { data } = await supabase.auth.getClaims();
-  if (!data?.claims?.sub) redirect("/login?error=expired-invite");
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/login?error=expired-invite");
 
   const { error } = await supabase.auth.updateUser({ password });
   if (error) redirect("/auth/set-password?error=update-failed");

@@ -2,6 +2,7 @@
   "name": "fyllefisken",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "pnpm@11.19.0",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -10,12 +11,14 @@
     "typecheck": "tsc --noEmit",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "check": "npm run typecheck && npm run lint && npm run format:check && npm run build"
+    "check": "pnpm run typecheck && pnpm run lint && pnpm run format:check && pnpm run build"
   },
-  "engines": { "node": "24.x" },
+  "engines": {
+    "node": "24.x"
+  },
   "dependencies": {
-    "@supabase/ssr": "0.7.0",
-    "@supabase/supabase-js": "2.57.4",
+    "@supabase/ssr": "0.12.5",
+    "@supabase/supabase-js": "2.112.4",
     "next": "16.3.0",
     "react": "19.2.0",
     "react-dom": "19.2.0"
@@ -24,9 +27,9 @@
     "@types/node": "24.0.0",
     "@types/react": "19.0.0",
     "@types/react-dom": "19.0.0",
-    "eslint": "9.0.0",
+    "eslint": "9.39.5",
     "eslint-config-next": "16.3.0",
     "prettier": "3.6.0",
-    "typescript": "5.9.0"
+    "typescript": "5.9.3"
   }
 }

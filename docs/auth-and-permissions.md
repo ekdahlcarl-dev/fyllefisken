@@ -18,6 +18,10 @@ Authorization is enforced in two places: Next.js server-side guards (`requireMem
 
 Public self-registration must be disabled in the hosted Supabase Auth provider settings. The application intentionally exposes no sign-up action.
 
+The hosted project was verified with `disable_signup: true`. Anonymous accounts and external identity providers are disabled. Keep these settings aligned across preview and production projects.
+
+Server-side route guards call `getUser()` so revoked or deleted sessions are checked with Supabase Auth rather than accepted solely from locally verified JWT claims.
+
 ## Environment
 
 Set `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` in local, Vercel Preview and Vercel Production environments. Never expose a Supabase secret/service-role key to the browser.

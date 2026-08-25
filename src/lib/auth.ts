@@ -3,8 +3,10 @@ import { createClient } from "@/lib/supabase/server";
 
 export async function requireMember() {
   const supabase = await createClient();
-  const { data } = await supabase.auth.getClaims();
-  const userId = data?.claims?.sub;
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const userId = user?.id;
   if (!userId) redirect("/login");
 
   const { data: profile } = await supabase
