@@ -5,14 +5,14 @@ FylleFisken is a Next.js application for fishing competitions, standings and mem
 ## Requirements
 
 - Node.js 24.x
-- npm
+- pnpm 11.19.0
 
 ## Local development
 
 ```bash
-npm install
+pnpm install
 cp .env.example .env.local
-npm run dev
+pnpm run dev
 ```
 
 Open `http://localhost:3000`.
@@ -20,13 +20,13 @@ Open `http://localhost:3000`.
 ## Validation
 
 ```bash
-npm run typecheck
-npm run lint
-npm run format:check
-npm run build
+pnpm run typecheck
+pnpm run lint
+pnpm run format:check
+pnpm run build
 ```
 
-`npm run check` runs the complete validation chain.
+`pnpm run check` runs the complete validation chain.
 
 ## Environments
 

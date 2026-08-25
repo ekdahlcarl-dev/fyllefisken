@@ -1,3 +1,6 @@
+import { requireMember } from "@/lib/auth";
+import { signOut } from "./login/actions";
+
 const competitions = [
   {
     date: "5 september",
@@ -18,55 +21,47 @@ const competitions = [
     time: "08:00",
   },
 ];
-
 const standings = [
   { place: 1, name: "Johan", points: 142, biggest: "104 cm", wins: 3 },
   { place: 2, name: "Anders", points: 128, biggest: "96 cm", wins: 2 },
   { place: 3, name: "Kalle", points: 117, biggest: "91 cm", wins: 1 },
-  { place: 4, name: "Peter", points: 103, biggest: "82 cm", wins: 1 },
-  { place: 5, name: "Marcus", points: 89, biggest: "79 cm", wins: 0 },
 ];
 
-export default function HomePage() {
+export default async function HomePage() {
+  const { profile } = await requireMember();
   return (
     <>
       <section className="hero">
         <div className="container hero-content">
           <p className="eyebrow">Fiske · Vänner · Prestige</p>
-          <h1>Välkommen till FylleFisken</h1>
+          <h1>Välkommen {profile.display_name ?? "fiskare"}</h1>
           <p className="hero-copy">
-            Samlingsplatsen för fisketävlingar, tveksamma rekord och livslång
-            prestige bland kompisarna.
+            Privat samlingsplats för FylleFiskens medlemmar.
           </p>
-          <div className="hero-actions">
-            <a className="button button-primary" href="#competitions">
-              Se nästa tävling
-            </a>
-            <a className="button button-secondary" href="#results">
-              Se resultat
-            </a>
-          </div>
+          <form action={signOut}>
+            <button className="button button-secondary" type="submit">
+              Logga ut
+            </button>
+          </form>
         </div>
       </section>
-
       <section className="section" id="competitions">
         <div className="container">
           <p className="eyebrow">Kommande bataljer</p>
           <h2>Tävlingar</h2>
           <div className="card-grid">
-            {competitions.map((competition) => (
-              <article className="card" key={competition.title}>
-                <p className="card-date">{competition.date}</p>
-                <h3>{competition.title}</h3>
+            {competitions.map((c) => (
+              <article className="card" key={c.title}>
+                <p className="card-date">{c.date}</p>
+                <h3>{c.title}</h3>
                 <p>
-                  {competition.place} · {competition.time}
+                  {c.place} · {c.time}
                 </p>
               </article>
             ))}
           </div>
         </div>
       </section>
-
       <section className="section section-muted" id="results">
         <div className="container">
           <p className="eyebrow">Hall of Fame</p>
@@ -100,6 +95,9 @@ export default function HomePage() {
               </tbody>
             </table>
           </div>
+          {profile.role === "admin" && (
+            <p className="eyebrow">Administratörsbehörighet aktiv</p>
+          )}
         </div>
       </section>
     </>
