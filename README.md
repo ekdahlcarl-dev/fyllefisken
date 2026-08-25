@@ -43,9 +43,10 @@ Secrets belong in local `.env.local` files or Vercel Environment Variables. `.en
 1. Import `ekdahlcarl-dev/fyllefisken` into the Vercel team.
 2. Keep the framework preset as Next.js and the repository root as the project root.
 3. Use Node.js 24.x.
-4. Configure environment variables separately for Development, Preview and Production if required.
-5. Keep Git integration enabled so every pull request receives a Preview Deployment and `main` deploys to Production.
-6. Verify `/api/health` after each environment is deployed.
+4. Leave the Output Directory on the framework default; Next.js manages its build output automatically.
+5. Configure environment variables separately for Development, Preview and Production if required.
+6. Keep Git integration enabled so every pull request receives a Preview Deployment and `main` deploys to Production.
+7. Verify `/api/health` after each environment is deployed.
 
 The repository is connected to the Vercel project `fyllefisken` in the `Calle` team. Git pushes to feature branches create Preview Deployments, while `main` is the Production branch.
 
