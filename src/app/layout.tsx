@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import type { ReactNode } from "react";
 import { getAppUrl } from "@/lib/env";
 import "./globals.css";
@@ -22,9 +23,9 @@ export default function RootLayout({ children }: Readonly<{ children: ReactNode 
         <div className="site-shell">
           <header className="site-header">
             <div className="container header-inner">
-              <a className="brand" href="/" aria-label="FylleFisken startsida">
+              <Link className="brand" href="/" aria-label="FylleFisken startsida">
                 <span aria-hidden="true">🎣</span> FylleFisken
-              </a>
+              </Link>
               <nav aria-label="Huvudnavigation">
                 <a href="#competitions">Tävlingar</a>
                 <a href="#results">Resultat</a>
