@@ -1,0 +1,1 @@
+The committed migration creates the `profiles` authorization table and RLS policies. Production schema changes for FYLLE-15 were applied to project `urlmipmqbcxwniieqatr` and checked with Supabase security advisors (no findings at implementation time).
