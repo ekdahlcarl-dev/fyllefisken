@@ -20,6 +20,7 @@ export default async function HomePage() {
           <div className="hero-actions">
             <Link className="button button-primary" href="/results">Live resultat</Link>
             <Link className="button button-secondary" href="/catches">Registrera fångst</Link>
+            {profile.role === "admin" && <Link className="button button-secondary" href="/admin/competition">Administrera tävling</Link>}
             <form action={signOut}><button className="button button-secondary" type="submit">Logga ut</button></form>
           </div>
         </div>
