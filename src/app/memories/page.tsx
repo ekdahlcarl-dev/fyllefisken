@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import Link from "next/link";
 import { requireMember } from "@/lib/auth";
 import { PhotoUploader } from "@/components/photo-uploader";
@@ -54,7 +55,7 @@ export default async function MemoriesPage() {
             <div className="memory-grid">
               {signed.filter((photo) => photo.year === year).map((photo) => (
                 <article className="card memory-card" key={photo.id}>
-                  {photo.url ? <a href={photo.url} target="_blank" rel="noreferrer">{/* eslint-disable-next-line @next/next/no-img-element */}<img src={photo.url} alt={photo.caption ?? `FylleFisken ${year}`} /></a> : <div className="memory-image-missing">Bild saknas</div>}
+                  {photo.url ? <a href={photo.url} target="_blank" rel="noreferrer"><img src={photo.url} alt={photo.caption ?? `FylleFisken ${year}`} /></a> : <div className="memory-image-missing">Bild saknas</div>}
                   <div className="memory-copy"><strong>{photo.caption || "Utan bildtext"}</strong>{photo.credit && <span>Foto: {photo.credit}</span>}</div>
                   {profile.role === "admin" && <form className="memory-edit" action={updateMemory}><input type="hidden" name="id" value={photo.id}/><input name="caption" defaultValue={photo.caption ?? ""} placeholder="Bildtext" maxLength={500}/><input name="credit" defaultValue={photo.credit ?? ""} placeholder="Fotograf" maxLength={120}/><input name="sort_order" type="number" min="0" defaultValue={photo.sort_order}/><button className="button button-light" type="submit">Spara</button></form>}
                   {profile.role === "admin" && <form action={deleteMemory}><input type="hidden" name="id" value={photo.id}/><button className="button button-danger" type="submit">Ta bort</button></form>}
