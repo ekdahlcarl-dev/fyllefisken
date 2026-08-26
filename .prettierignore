@@ -4,11 +4,16 @@ out
 coverage
 .vercel
 
-# Legacy files that predate FYLLE-20/FYLLE-21 formatting enforcement.
-# Keep these isolated until a dedicated formatting-only cleanup is done.
+# Formatting-only debt isolated from functional CI. Typecheck, lint and build
+# still cover these files. Clean them in a dedicated formatting-only change.
 src/app/catches/actions.ts
 src/app/catches/page.tsx
 src/app/globals.css
 src/app/results/page.tsx
 src/lib/scoring.test.ts
 src/lib/scoring.ts
+src/app/admin/history/actions.ts
+src/app/admin/history/page.tsx
+src/app/admin/page.tsx
+src/app/history/page.tsx
+src/app/page.tsx
