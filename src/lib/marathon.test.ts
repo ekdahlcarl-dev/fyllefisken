@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { calculateMarathonStandings } from "./marathon.ts";
 
-test("MAJO lead uses the required copy", () => {
+test("MAJO lead uses the required copy and displays MAJO on the left", () => {
   const result = calculateMarathonStandings(
     [
       { year: 2011, team: "MAJO" },
@@ -14,13 +14,15 @@ test("MAJO lead uses the required copy", () => {
 
   assert.equal(result.majo, 2);
   assert.equal(result.torsk, 1);
+  assert.deepEqual(result.left, { team: "MAJO", wins: 2 });
+  assert.deepEqual(result.right, { team: "TORSK", wins: 1 });
   assert.equal(
     result.message,
     "MAJO leder med 2–1 (men alla vet att dom fuskar)",
   );
 });
 
-test("TORSK lead uses the required copy", () => {
+test("TORSK lead uses the required copy and displays TORSK on the left", () => {
   const result = calculateMarathonStandings(
     [
       { year: 2011, team: "TORSK" },
@@ -30,10 +32,12 @@ test("TORSK lead uses the required copy", () => {
     [],
   );
 
+  assert.deepEqual(result.left, { team: "TORSK", wins: 2 });
+  assert.deepEqual(result.right, { team: "MAJO", wins: 1 });
   assert.equal(result.message, "TORSK leder med 2–1 (helt rättvist)");
 });
 
-test("tie is explicit", () => {
+test("tie is explicit and keeps stable MAJO-left order", () => {
   const result = calculateMarathonStandings(
     [
       { year: 2011, team: "MAJO" },
@@ -42,6 +46,8 @@ test("tie is explicit", () => {
     [],
   );
 
+  assert.deepEqual(result.left, { team: "MAJO", wins: 1 });
+  assert.deepEqual(result.right, { team: "TORSK", wins: 1 });
   assert.equal(result.message, "Helt jämnt: 1–1");
 });
 
