@@ -17,3 +17,12 @@ src/app/admin/history/page.tsx
 src/app/admin/page.tsx
 src/app/history/page.tsx
 src/app/page.tsx
+src/app/layout.tsx
+src/app/memories/actions.ts
+src/app/memories/page.tsx
+src/app/photos.css
+src/components/catch-photos.tsx
+src/components/photo-uploader.tsx
+src/lib/photo-validation.test.ts
+src/lib/photo-validation.ts
+package.json
