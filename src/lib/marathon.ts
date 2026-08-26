@@ -53,9 +53,13 @@ export function calculateMarathonStandings(
   }
 
   const left: MarathonDisplayTeam =
-    torsk > majo ? { team: "TORSK", wins: torsk } : { team: "MAJO", wins: majo };
+    torsk > majo
+      ? { team: "TORSK", wins: torsk }
+      : { team: "MAJO", wins: majo };
   const right: MarathonDisplayTeam =
-    torsk > majo ? { team: "MAJO", wins: majo } : { team: "TORSK", wins: torsk };
+    torsk > majo
+      ? { team: "MAJO", wins: majo }
+      : { team: "TORSK", wins: torsk };
 
   return {
     majo,
