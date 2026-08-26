@@ -3,6 +3,7 @@ import { requireAdmin } from "@/lib/auth";
 
 export default async function AdminPage() {
   await requireAdmin();
+
   return (
     <section className="section">
       <div className="container">
@@ -11,13 +12,30 @@ export default async function AdminPage() {
         <div className="card-grid">
           <div className="card">
             <h2>Tävlingsår</h2>
-            <p>Förbered nästa säsong, öppna och stäng registrering samt slutför tävlingen.</p>
-            <div className="hero-actions"><Link className="button button-primary" href="/admin/competition">Hantera tävling</Link></div>
+            <p>
+              Förbered nästa säsong, öppna och stäng registrering samt slutför
+              tävlingen.
+            </p>
+            <div className="hero-actions">
+              <Link
+                className="button button-primary"
+                href="/admin/competition"
+              >
+                Hantera tävling
+              </Link>
+            </div>
           </div>
           <div className="card">
             <h2>Vinnararkiv</h2>
-            <p>Komplettera historiska vinnare. Digitalt avslutade säsonger är låsta.</p>
-            <div className="hero-actions"><Link className="button button-primary" href="/admin/history">Hantera historik</Link></div>
+            <p>
+              Komplettera historiska vinnare. Digitalt avslutade säsonger är
+              låsta.
+            </p>
+            <div className="hero-actions">
+              <Link className="button button-primary" href="/admin/history">
+                Hantera historik
+              </Link>
+            </div>
           </div>
         </div>
       </div>
