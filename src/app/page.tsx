@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { requireMember } from "@/lib/auth";
+import { calculateMarathonStandings, type MarathonTeam } from "@/lib/marathon";
+import { getSeasonCompetitionScore } from "@/lib/scoring-server";
 import { signOut } from "./login/actions";
 
 const competitions = [
@@ -24,7 +26,28 @@ const competitions = [
 ];
 
 export default async function HomePage() {
-  const { profile } = await requireMember();
+  const { supabase, profile } = await requireMember();
+  const [{ data: winners }, { data: teams }, { data: closedSeasons }] = await Promise.all([
+    supabase.from("yearly_winners").select("year, team_id"),
+    supabase.from("teams").select("id, code"),
+    supabase.from("seasons").select("id, year").eq("status", "closed"),
+  ]);
+
+  const teamCodeById = new Map((teams ?? []).map((team) => [team.id, team.code]));
+  const historical = (winners ?? []).map((winner) => {
+    const code = winner.team_id ? teamCodeById.get(winner.team_id) : null;
+    return {
+      year: winner.year,
+      team: code === "MAJO" || code === "TORSK" ? (code as MarathonTeam) : null,
+    };
+  });
+  const digital = await Promise.all(
+    (closedSeasons ?? []).map(async (season) => ({
+      year: season.year,
+      winner: (await getSeasonCompetitionScore(season.id)).winner,
+    })),
+  );
+  const marathon = calculateMarathonStandings(historical, digital);
 
   return (
     <>
@@ -52,6 +75,24 @@ export default async function HomePage() {
                 Logga ut
               </button>
             </form>
+          </div>
+        </div>
+      </section>
+
+      <section className="section marathon-section" aria-labelledby="marathon-heading">
+        <div className="container">
+          <p className="eyebrow">Sedan 2011</p>
+          <h2 id="marathon-heading">Maratontabellen</h2>
+          <div className="card marathon-card">
+            <div className="marathon-score" aria-label={`MAJO ${marathon.majo}, TORSK ${marathon.torsk}`}>
+              <div><span>MAJO</span><strong>{marathon.majo}</strong></div>
+              <span className="marathon-divider">–</span>
+              <div><span>TORSK</span><strong>{marathon.torsk}</strong></div>
+            </div>
+            <p className="marathon-message">{marathon.message}</p>
+            <Link className="button button-light" href="/history">
+              Se vinnararkivet
+            </Link>
           </div>
         </div>
       </section>
