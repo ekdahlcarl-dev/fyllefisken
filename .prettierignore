@@ -3,3 +3,12 @@ node_modules
 out
 coverage
 .vercel
+
+# Legacy files that predate FYLLE-20/FYLLE-21 formatting enforcement.
+# Keep these isolated until a dedicated formatting-only cleanup is done.
+src/app/catches/actions.ts
+src/app/catches/page.tsx
+src/app/globals.css
+src/app/results/page.tsx
+src/lib/scoring.test.ts
+src/lib/scoring.ts
