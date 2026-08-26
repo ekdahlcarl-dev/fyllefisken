@@ -5,6 +5,7 @@ import { AuthHashHandler } from "@/components/auth-hash-handler";
 import { getAppUrl } from "@/lib/env";
 import "./globals.css";
 import "./photos.css";
+import "./marathon.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL(getAppUrl()),
