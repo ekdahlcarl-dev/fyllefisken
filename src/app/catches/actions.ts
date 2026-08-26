@@ -18,16 +18,20 @@ function selectionUrl(formData: FormData, params: Record<string, string>) {
   return `/catches?${search.toString()}`;
 }
 
+function validLength(length: number) {
+  return Number.isInteger(length) && length >= 10 && length <= 150;
+}
+
 export async function addCatch(formData: FormData) {
   const { supabase, profile } = await requireMember();
   const seasonId = asString(formData.get("season"));
   const dayId = asString(formData.get("day"));
   const teamId = Number(asString(formData.get("team")));
   const submissionKey = asString(formData.get("submission_key"));
-  const length = Number(asString(formData.get("length_cm")).replace(",", "."));
+  const length = Number(asString(formData.get("length_cm")));
 
-  if (!seasonId || !dayId || !Number.isInteger(teamId) || !submissionKey || !Number.isFinite(length) || length < 10 || length > 150) {
-    redirect(selectionUrl(formData, { error: "Kontrollera längden (10–150 cm) och valen." }));
+  if (!seasonId || !dayId || !Number.isInteger(teamId) || !submissionKey || !validLength(length)) {
+    redirect(selectionUrl(formData, { error: "Ange längden i hela centimeter (10–150 cm)." }));
   }
 
   const { error } = await supabase.from("catches").insert({
@@ -44,20 +48,22 @@ export async function addCatch(formData: FormData) {
   }
 
   revalidatePath("/catches");
+  revalidatePath("/results");
   redirect(selectionUrl(formData, { success: error?.code === "23505" ? "Fångsten var redan registrerad." : "Fångsten är registrerad." }));
 }
 
 export async function updateCatch(formData: FormData) {
   const { supabase } = await requireMember();
   const id = asString(formData.get("catch_id"));
-  const length = Number(asString(formData.get("length_cm")).replace(",", "."));
-  if (!id || !Number.isFinite(length) || length < 10 || length > 150) {
-    redirect(selectionUrl(formData, { error: "Ange en giltig längd mellan 10 och 150 cm." }));
+  const length = Number(asString(formData.get("length_cm")));
+  if (!id || !validLength(length)) {
+    redirect(selectionUrl(formData, { error: "Ange längden i hela centimeter (10–150 cm)." }));
   }
 
   const { error } = await supabase.from("catches").update({ length_cm: length, updated_at: new Date().toISOString() }).eq("id", id);
   if (error) redirect(selectionUrl(formData, { error: "Du saknar behörighet att ändra fångsten, eller dagen är stängd." }));
   revalidatePath("/catches");
+  revalidatePath("/results");
   redirect(selectionUrl(formData, { success: "Fångsten är uppdaterad." }));
 }
 
@@ -68,5 +74,6 @@ export async function deleteCatch(formData: FormData) {
   const { error } = await supabase.from("catches").delete().eq("id", id);
   if (error) redirect(selectionUrl(formData, { error: "Du saknar behörighet att ta bort fångsten, eller dagen är stängd." }));
   revalidatePath("/catches");
+  revalidatePath("/results");
   redirect(selectionUrl(formData, { success: "Fångsten är borttagen." }));
 }
