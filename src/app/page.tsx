@@ -84,10 +84,19 @@ export default async function HomePage() {
           <p className="eyebrow">Sedan 2011</p>
           <h2 id="marathon-heading">Maratontabellen</h2>
           <div className="card marathon-card">
-            <div className="marathon-score" aria-label={`MAJO ${marathon.majo}, TORSK ${marathon.torsk}`}>
-              <div><span>MAJO</span><strong>{marathon.majo}</strong></div>
+            <div
+              className="marathon-score"
+              aria-label={`${marathon.left.team} ${marathon.left.wins}, ${marathon.right.team} ${marathon.right.wins}`}
+            >
+              <div>
+                <span>{marathon.left.team}</span>
+                <strong>{marathon.left.wins}</strong>
+              </div>
               <span className="marathon-divider">–</span>
-              <div><span>TORSK</span><strong>{marathon.torsk}</strong></div>
+              <div>
+                <span>{marathon.right.team}</span>
+                <strong>{marathon.right.wins}</strong>
+              </div>
             </div>
             <p className="marathon-message">{marathon.message}</p>
             <Link className="button button-light" href="/history">

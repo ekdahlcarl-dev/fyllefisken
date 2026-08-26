@@ -11,9 +11,16 @@ export type DigitalWinner = {
   winner: MarathonWinner;
 };
 
+export type MarathonDisplayTeam = {
+  team: MarathonTeam;
+  wins: number;
+};
+
 export type MarathonStandings = {
   majo: number;
   torsk: number;
+  left: MarathonDisplayTeam;
+  right: MarathonDisplayTeam;
   message: string;
 };
 
@@ -45,9 +52,20 @@ export function calculateMarathonStandings(
     if (winner === "TORSK") torsk += 1;
   }
 
+  const left: MarathonDisplayTeam =
+    torsk > majo
+      ? { team: "TORSK", wins: torsk }
+      : { team: "MAJO", wins: majo };
+  const right: MarathonDisplayTeam =
+    torsk > majo
+      ? { team: "MAJO", wins: majo }
+      : { team: "TORSK", wins: torsk };
+
   return {
     majo,
     torsk,
+    left,
+    right,
     message: marathonMessage(majo, torsk),
   };
 }
