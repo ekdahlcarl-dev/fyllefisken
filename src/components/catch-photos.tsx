@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import { useState } from "react";
@@ -38,7 +39,7 @@ export function CatchPhotos({ catchId, userId, canManage, photos }: Props) {
 
   return (
     <div className="catch-photos">
-      {!!photos.length && <div className="catch-photo-strip">{photos.map((photo) => photo.url && <div className="catch-photo-thumb" key={photo.id}><a href={photo.url} target="_blank" rel="noreferrer">{/* eslint-disable-next-line @next/next/no-img-element */}<img src={photo.url} alt="Fångstfoto" /></a>{canManage && <button type="button" className="photo-remove" disabled={removing === photo.id} onClick={() => void remove(photo)} aria-label="Ta bort foto">×</button>}</div>)}</div>}
+      {!!photos.length && <div className="catch-photo-strip">{photos.map((photo) => photo.url && <div className="catch-photo-thumb" key={photo.id}><a href={photo.url} target="_blank" rel="noreferrer"><img src={photo.url} alt="Fångstfoto" /></a>{canManage && <button type="button" className="photo-remove" disabled={removing === photo.id} onClick={() => void remove(photo)} aria-label="Ta bort foto">×</button>}</div>)}</div>}
       {canManage && <PhotoUploader userId={userId} catchId={catchId} allowMultiple />}
       {error && <span className="photo-message notice-error" role="alert">{error}</span>}
     </div>
