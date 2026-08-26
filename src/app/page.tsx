@@ -19,6 +19,7 @@ export default async function HomePage() {
           <p className="hero-copy">Privat samlingsplats för FylleFiskens medlemmar.</p>
           <div className="hero-actions">
             <Link className="button button-primary" href="/results">Live resultat</Link>
+            <Link className="button button-secondary" href="/history">Vinnararkiv</Link>
             <Link className="button button-secondary" href="/catches">Registrera fångst</Link>
             <form action={signOut}><button className="button button-secondary" type="submit">Logga ut</button></form>
           </div>

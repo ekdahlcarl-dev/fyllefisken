@@ -36,7 +36,8 @@ export default function RootLayout({
               </Link>
               <nav aria-label="Huvudnavigation">
                 <a href="#competitions">Tävlingar</a>
-                <a href="#results">Resultat</a>
+                <Link href="/results">Resultat</Link>
+                <Link href="/history">Historik</Link>
               </nav>
             </div>
           </header>
