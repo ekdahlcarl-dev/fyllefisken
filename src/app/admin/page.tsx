@@ -8,16 +8,16 @@ export default async function AdminPage() {
       <div className="container">
         <p className="eyebrow">Administratör</p>
         <h1>Administration</h1>
-        <div className="card">
-          <h2>Tävlingsår</h2>
-          <p>
-            Förbered nästa säsong, öppna och stäng registrering samt slutför
-            tävlingen.
-          </p>
-          <div className="hero-actions">
-            <Link className="button button-primary" href="/admin/competition">
-              Hantera tävling
-            </Link>
+        <div className="card-grid">
+          <div className="card">
+            <h2>Tävlingsår</h2>
+            <p>Förbered nästa säsong, öppna och stäng registrering samt slutför tävlingen.</p>
+            <div className="hero-actions"><Link className="button button-primary" href="/admin/competition">Hantera tävling</Link></div>
+          </div>
+          <div className="card">
+            <h2>Vinnararkiv</h2>
+            <p>Komplettera historiska vinnare. Digitalt avslutade säsonger är låsta.</p>
+            <div className="hero-actions"><Link className="button button-primary" href="/admin/history">Hantera historik</Link></div>
           </div>
         </div>
       </div>
