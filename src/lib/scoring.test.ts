@@ -63,19 +63,17 @@ test("winner stays hidden until competition is complete", () => {
 
 test("equal final points are decided by the longest pike in the competition", () => {
   const score = calculateCompetitionScore([
-    c("MAJO", 1, 110), c("MAJO", 2, 60), c("MAJO", 3, 60),
-    c("TORSK", 1, 100), c("TORSK", 2, 90), c("TORSK", 3, 80),
+    c("MAJO", 1, 90), c("MAJO", 1, 90), c("MAJO", 2, 80), c("MAJO", 2, 70), c("MAJO", 3, 100), c("MAJO", 3, 80),
+    c("TORSK", 1, 60), c("TORSK", 1, 90), c("TORSK", 2, 60), c("TORSK", 2, 110), c("TORSK", 3, 60), c("TORSK", 3, 100),
   ], true);
-  assert.equal(score.points.MAJO, score.points.TORSK);
-  assert.equal(score.overall.teams.MAJO.longestCm, 110);
-  assert.equal(score.winner, "MAJO");
+  assert.equal(score.points.MAJO, 4);
+  assert.equal(score.points.TORSK, 4);
+  assert.equal(score.overall.teams.TORSK.longestCm, 110);
+  assert.equal(score.winner, "TORSK");
 });
 
 test("equal final points and equal longest pike produce a true tie", () => {
-  const score = calculateCompetitionScore([
-    c("MAJO", 1, 100), c("MAJO", 2, 80),
-    c("TORSK", 1, 100), c("TORSK", 2, 80),
-  ], true);
+  const score = calculateCompetitionScore([c("MAJO", 1, 100), c("MAJO", 2, 80), c("TORSK", 1, 100), c("TORSK", 2, 80)], true);
   assert.equal(score.points.MAJO, score.points.TORSK);
   assert.equal(score.overall.teams.MAJO.longestCm, score.overall.teams.TORSK.longestCm);
   assert.equal(score.winner, "TIE");
