@@ -136,19 +136,29 @@ test("winner stays hidden until competition is complete", () => {
   assert.equal(score.winner, null);
 });
 
-test("final-score tie is broken by longest, then next-longest pike", () => {
+test("final-score tie is broken by longest, then next comparable pike", () => {
   const score = calculateCompetitionScore(
     [
       c("MAJO", 1, 100),
-      c("MAJO", 2, 80),
-      c("TORSK", 1, 100),
-      c("TORSK", 2, 79),
+      c("MAJO", 1, 60),
+      c("MAJO", 1, 90),
+      c("MAJO", 2, 90),
+      c("MAJO", 3, 80),
+      c("MAJO", 3, 80),
+      c("TORSK", 1, 80),
+      c("TORSK", 1, 90),
+      c("TORSK", 1, 90),
+      c("TORSK", 2, 80),
+      c("TORSK", 2, 80),
+      c("TORSK", 2, 80),
+      c("TORSK", 3, 100),
     ],
     true,
   );
 
-  assert.equal(score.points.MAJO, score.points.TORSK);
-  assert.equal(score.winner, "MAJO");
+  assert.equal(score.points.MAJO, 4);
+  assert.equal(score.points.TORSK, 4);
+  assert.equal(score.winner, "TORSK");
 });
 
 test("identical comparable catch sequences produce a true tie", () => {
