@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { AuthHashHandler } from "@/components/auth-hash-handler";
 import { getAppUrl } from "@/lib/env";
 import "./globals.css";
 
@@ -19,6 +20,7 @@ export default function RootLayout({
   return (
     <html lang="sv">
       <body>
+        <AuthHashHandler />
         <a className="skip-link" href="#main-content">
           Hoppa till innehåll
         </a>
