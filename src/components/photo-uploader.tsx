@@ -15,7 +15,8 @@ const MAX_BYTES = 10 * 1024 * 1024;
 const ALLOWED = new Set(["image/jpeg", "image/png", "image/webp"]);
 
 export function PhotoUploader({ userId, catchId, year, allowMultiple = true, onUploaded }: Props) {
-  const inputRef = useRef<HTMLInputElement>(null);
+  const cameraRef = useRef<HTMLInputElement>(null);
+  const libraryRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const supabase = createClient();
@@ -53,7 +54,8 @@ export function PhotoUploader({ userId, catchId, year, allowMultiple = true, onU
         uploaded += 1;
       }
       setMessage(`${uploaded} foto${uploaded === 1 ? "" : "n"} uppladdade.`);
-      if (inputRef.current) inputRef.current.value = "";
+      if (cameraRef.current) cameraRef.current.value = "";
+      if (libraryRef.current) libraryRef.current.value = "";
       onUploaded?.();
       window.location.reload();
     } catch (error) {
@@ -66,13 +68,24 @@ export function PhotoUploader({ userId, catchId, year, allowMultiple = true, onU
   return (
     <div className="photo-upload">
       <label className="button button-light photo-upload-button">
-        {busy ? "Laddar upp…" : "Lägg till foto"}
+        {busy ? "Laddar upp…" : "Ta foto"}
         <input
-          ref={inputRef}
+          ref={cameraRef}
           className="sr-only"
           type="file"
           accept="image/jpeg,image/png,image/webp"
           capture="environment"
+          disabled={busy}
+          onChange={(event) => void uploadFiles(event.target.files)}
+        />
+      </label>
+      <label className="button button-light photo-upload-button">
+        {busy ? "Laddar upp…" : allowMultiple ? "Välj bilder" : "Välj bild"}
+        <input
+          ref={libraryRef}
+          className="sr-only"
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
           multiple={allowMultiple}
           disabled={busy}
           onChange={(event) => void uploadFiles(event.target.files)}
