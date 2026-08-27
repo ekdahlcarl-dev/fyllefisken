@@ -20,8 +20,6 @@ export function releasedDayIds<
   T extends { id: string; results_released_at: string | null },
 >(days: T[]) {
   return new Set(
-    days
-      .filter((day) => day.results_released_at !== null)
-      .map((day) => day.id),
+    days.filter((day) => day.results_released_at !== null).map((day) => day.id),
   );
 }
