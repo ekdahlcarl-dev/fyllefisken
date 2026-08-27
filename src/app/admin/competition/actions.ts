@@ -117,13 +117,10 @@ export async function changeDayResultRelease(formData: FormData) {
   const { supabase } = await requireAdmin();
   confirmed(formData);
   const release = value(formData, "operation") === "release";
-  const { error } = await supabase.rpc(
-    "set_competition_day_results_released",
-    {
-      target_day_id: value(formData, "day_id"),
-      should_release: release,
-    },
-  );
+  const { error } = await supabase.rpc("set_competition_day_results_released", {
+    target_day_id: value(formData, "day_id"),
+    should_release: release,
+  });
   if (error)
     finish(
       release
