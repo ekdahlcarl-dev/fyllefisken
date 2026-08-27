@@ -134,8 +134,6 @@ begin
     raise exception 'Season must have exactly three competition days';
   end if;
 
-  -- Move through season-scoped sentinel dates so swapping two dates does not
-  -- trip the existing immediate unique constraint midway through the update.
   update public.competition_days
   set competition_date = date '1900-01-01' + day_number,
       updated_at = now()
@@ -228,7 +226,6 @@ begin
     update public.competition_days set is_open = false, updated_at = now() where season_id = target_season_id;
     update public.seasons set status = 'closed'::public.season_status, updated_at = now() where id = target_season_id;
   else
-    -- Reopening a season never silently opens registration days.
     update public.seasons set status = 'open'::public.season_status, updated_at = now() where id = target_season_id;
   end if;
 
@@ -250,8 +247,6 @@ grant execute on function public.configure_competition_dates(uuid, date, date, d
 grant execute on function public.set_competition_day_open(uuid, boolean, boolean) to authenticated;
 grant execute on function public.set_competition_season_closed(uuid, boolean) to authenticated;
 
--- Catch editing is an ordinary competition write even when performed by an
--- administrator. Closed lifecycle entities therefore cannot be bypassed.
 drop policy if exists "owners or admins can update catches on open days" on public.catches;
 create policy "owners can update own catches on open days"
 on public.catches for update to authenticated
