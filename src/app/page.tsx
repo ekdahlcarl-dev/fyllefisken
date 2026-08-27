@@ -67,7 +67,7 @@ export default async function HomePage() {
     <>
       <section className="hero">
         <div className="container hero-content">
-          <p className="eyebrow">Fiske · Vänner · Prestige</p>
+          <p className="eyebrow">FYLLA FROSSERI KNIVAR</p>
           <h1>Välkommen {profile.display_name ?? "fiskare"}</h1>
           <p className="hero-copy">
             Privat samlingsplats för FylleFiskens medlemmar.
