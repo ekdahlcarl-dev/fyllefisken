@@ -6,17 +6,20 @@ export const metadata = { title: "Vinnararkiv" };
 
 export default async function HistoryPage() {
   const { supabase, profile } = await requireMember();
+  const currentYear = new Date().getUTCFullYear();
   const [{ data: winners }, { data: teams }, { data: closedSeasons }] =
     await Promise.all([
       supabase
         .from("yearly_winners")
-        .select("year, team_id")
+        .select("year, team_id, location")
+        .lte("year", currentYear)
         .order("year", { ascending: false }),
       supabase.from("teams").select("id, code, name"),
       supabase
         .from("seasons")
-        .select("id, year")
+        .select("id, year, location")
         .eq("status", "closed")
+        .lte("year", currentYear)
         .order("year", { ascending: false }),
     ]);
 
@@ -27,13 +30,10 @@ export default async function HistoryPage() {
     })),
   );
 
-  const currentYear = new Date().getUTCFullYear();
   const archiveEnd = Math.max(
     2011,
-    currentYear - 1,
-    ...(winners ?? [])
-      .map((item) => item.year)
-      .filter((year) => year <= currentYear),
+    currentYear,
+    ...(winners ?? []).map((item) => item.year),
     ...(closedSeasons ?? []).map((item) => item.year),
   );
   const winnerByYear = new Map(
@@ -42,12 +42,15 @@ export default async function HistoryPage() {
   const teamById = new Map((teams ?? []).map((item) => [item.id, item]));
   const teamByCode = new Map((teams ?? []).map((item) => [item.code, item]));
   const digitalByYear = new Map(
-    digitalResults.map(({ season, score }) => [season.year, score.winner]),
+    digitalResults.map(({ season, score }) => [
+      season.year,
+      { winner: score.winner, location: season.location },
+    ]),
   );
   const years = Array.from(
     { length: archiveEnd - 2011 + 1 },
     (_, index) => archiveEnd - index,
-  );
+  ).filter((year) => year <= currentYear);
 
   return (
     <section className="section history-page">
@@ -56,7 +59,10 @@ export default async function HistoryPage() {
           <div>
             <p className="eyebrow">Sedan 2011</p>
             <h1>Vinnararkiv</h1>
-            <p>En vinnare per avslutat tävlingsår, nyaste året först.</p>
+            <p>
+              En vinnare per tävlingsår, nyaste året först. Framtida
+              test-/tävlingsår visas inte här.
+            </p>
           </div>
           <div className="history-actions">
             {profile.role === "admin" && (
@@ -72,7 +78,8 @@ export default async function HistoryPage() {
 
         <div className="history-list">
           {years.map((year) => {
-            const digitalWinner = digitalByYear.get(year);
+            const digitalResult = digitalByYear.get(year);
+            const digitalWinner = digitalResult?.winner;
             const digitalTeam =
               digitalWinner === "MAJO" || digitalWinner === "TORSK"
                 ? teamByCode.get(digitalWinner)
@@ -84,6 +91,9 @@ export default async function HistoryPage() {
             const team = digitalTeam ?? historicalTeam;
             const digital = digitalByYear.has(year);
             const trueTie = digital && digitalWinner === "TIE";
+            const location = digital
+              ? digitalResult?.location
+              : historical?.location;
 
             return (
               <article
@@ -114,6 +124,9 @@ export default async function HistoryPage() {
                       </span>
                     </>
                   )}
+                  <span className="history-kind">
+                    Plats: {location || "saknas"}
+                  </span>
                 </div>
                 <span
                   className={`history-badge ${digital ? "is-digital" : ""}`}
