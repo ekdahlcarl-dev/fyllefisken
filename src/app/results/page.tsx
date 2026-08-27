@@ -1,7 +1,12 @@
 import Link from "next/link";
 import { requireMember } from "@/lib/auth";
 import { getSeasonCompetitionScore } from "@/lib/scoring-server";
-import type { CategoryPoints, TeamCode, TeamMetrics } from "@/lib/scoring";
+import type {
+  CategoryPoints,
+  CompetitionScore,
+  TeamCode,
+  TeamMetrics,
+} from "@/lib/scoring";
 
 type SearchParams = Promise<{ season?: string }>;
 const teams: TeamCode[] = ["MAJO", "TORSK"];
@@ -86,18 +91,24 @@ export default async function ResultsPage({
     .order("year", { ascending: false });
   const seasonId = params.season ?? seasons?.[0]?.id ?? "";
   const season = seasons?.find((item) => item.id === seasonId);
-  const [{ data: days }, score] = seasonId
-    ? await Promise.all([
-        supabase
-          .from("competition_days")
-          .select("day_number, results_released_at")
-          .eq("season_id", seasonId)
-          .order("day_number"),
-        getSeasonCompetitionScore(seasonId),
-      ])
-    : [{ data: [] }, null];
+
+  let dayRows: { day_number: number; results_released_at: string | null }[] = [];
+  let score: CompetitionScore | null = null;
+  if (seasonId) {
+    const [daysResult, seasonScore] = await Promise.all([
+      supabase
+        .from("competition_days")
+        .select("day_number, results_released_at")
+        .eq("season_id", seasonId)
+        .order("day_number"),
+      getSeasonCompetitionScore(seasonId),
+    ]);
+    dayRows = daysResult.data ?? [];
+    score = seasonScore;
+  }
+
   const releasedDays = new Set(
-    (days ?? [])
+    dayRows
       .filter((day) => day.results_released_at !== null)
       .map((day) => Number(day.day_number)),
   );
