@@ -1,46 +1,48 @@
 import Link from "next/link";
 import { requireMember } from "@/lib/auth";
 import { calculateMarathonStandings, type MarathonTeam } from "@/lib/marathon";
+import {
+  formatCompetitionDateSpan,
+  nextCompetitionYear,
+} from "@/lib/next-competition";
 import { getSeasonCompetitionScore } from "@/lib/scoring-server";
 import { signOut } from "./login/actions";
-
-const competitions = [
-  {
-    date: "5 september",
-    title: "Höstgäddan 2026",
-    place: "Mälaren",
-    time: "08:00",
-  },
-  {
-    date: "3 oktober",
-    title: "Abborrjakten",
-    place: "Stockholms skärgård",
-    time: "09:00",
-  },
-  {
-    date: "28 november",
-    title: "FylleFisken Final",
-    place: "Hemlig plats",
-    time: "08:00",
-  },
-];
 
 export default async function HomePage() {
   const { supabase, profile } = await requireMember();
   const currentYear = new Date().getUTCFullYear();
-  const [{ data: winners }, { data: teams }, { data: closedSeasons }] =
-    await Promise.all([
-      supabase
-        .from("yearly_winners")
-        .select("year, team_id")
-        .lte("year", currentYear),
-      supabase.from("teams").select("id, code"),
-      supabase
-        .from("seasons")
-        .select("id, year")
-        .eq("status", "closed")
-        .lte("year", currentYear),
-    ]);
+  const upcomingYear = nextCompetitionYear(currentYear);
+  const [
+    { data: winners },
+    { data: teams },
+    { data: closedSeasons },
+    { data: upcomingSeason },
+  ] = await Promise.all([
+    supabase
+      .from("yearly_winners")
+      .select("year, team_id")
+      .lte("year", currentYear),
+    supabase.from("teams").select("id, code"),
+    supabase
+      .from("seasons")
+      .select("id, year")
+      .eq("status", "closed")
+      .lte("year", currentYear),
+    supabase
+      .from("seasons")
+      .select("id, year, location")
+      .eq("year", upcomingYear)
+      .maybeSingle(),
+  ]);
+
+  const { data: upcomingDays } = upcomingSeason
+    ? await supabase
+        .from("competition_days")
+        .select("competition_date")
+        .eq("season_id", upcomingSeason.id)
+        .order("competition_date", { ascending: true })
+    : { data: [] };
+  const upcomingDateSpan = formatCompetitionDateSpan(upcomingDays ?? []);
 
   const teamCodeById = new Map(
     (teams ?? []).map((team) => [team.id, team.code]),
@@ -128,17 +130,21 @@ export default async function HomePage() {
         <div className="container">
           <p className="eyebrow">Kommande bataljer</p>
           <h2>Tävlingar</h2>
-          <div className="card-grid">
-            {competitions.map((competition) => (
-              <article className="card" key={competition.title}>
-                <p className="card-date">{competition.date}</p>
-                <h3>{competition.title}</h3>
-                <p>
-                  {competition.place} · {competition.time}
+          {upcomingSeason ? (
+            <div className="card-grid">
+              <article className="card">
+                <p className="card-date">
+                  {upcomingDateSpan ?? "Datum ej fastställt"}
                 </p>
+                <h3>FylleFisken {upcomingSeason.year}</h3>
+                <p>{upcomingSeason.location || "Plats ej fastställd"}</p>
               </article>
-            ))}
-          </div>
+            </div>
+          ) : (
+            <div className="card empty-state">
+              Ingen tävling är planerad för {upcomingYear} ännu.
+            </div>
+          )}
         </div>
       </section>
 
