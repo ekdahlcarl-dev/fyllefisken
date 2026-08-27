@@ -63,7 +63,8 @@ export default async function AdminMembersPage({
               <div>
                 <strong>{member.display_name || member.email}</strong>
                 <div className="muted">
-                  {member.email} · {member.role === "admin" ? "Admin" : "Medlem"}
+                  {member.email} ·{" "}
+                  {member.role === "admin" ? "Admin" : "Medlem"}
                 </div>
               </div>
               <label>
