@@ -18,7 +18,9 @@ export async function adminUpdateCatch(formData: FormData) {
   const catchId = String(formData.get("catch_id") ?? "");
   const length = Number(formData.get("length_cm"));
   if (!catchId || !Number.isInteger(length) || length < 10 || length > 150) {
-    redirect(`${baseUrl(formData)}&error=${encodeURIComponent("Ogiltig längd.")}`);
+    redirect(
+      `${baseUrl(formData)}&error=${encodeURIComponent("Ogiltig längd.")}`,
+    );
   }
   const { error } = await supabase.rpc("admin_update_catch", {
     target_catch_id: catchId,
@@ -32,7 +34,9 @@ export async function adminUpdateCatch(formData: FormData) {
   revalidatePath("/admin/catches");
   revalidatePath("/results");
   revalidatePath("/catches");
-  redirect(`${baseUrl(formData)}&success=${encodeURIComponent("Fångsten uppdaterades.")}`);
+  redirect(
+    `${baseUrl(formData)}&success=${encodeURIComponent("Fångsten uppdaterades.")}`,
+  );
 }
 
 export async function adminDeleteCatch(formData: FormData) {
@@ -50,5 +54,7 @@ export async function adminDeleteCatch(formData: FormData) {
   revalidatePath("/admin/catches");
   revalidatePath("/results");
   revalidatePath("/catches");
-  redirect(`${baseUrl(formData)}&success=${encodeURIComponent("Fångsten togs bort.")}`);
+  redirect(
+    `${baseUrl(formData)}&success=${encodeURIComponent("Fångsten togs bort.")}`,
+  );
 }
