@@ -102,37 +102,11 @@ export default async function HistoryPage() {
               >
                 <strong className="history-year">{year}</strong>
                 <div className="history-winner">
-                  {team ? (
-                    <>
-                      <span className="history-team">{team.name}</span>
-                      <span className="history-kind">
-                        {digital
-                          ? "Digitalt slutresultat"
-                          : "Historisk vinnaruppgift"}
-                      </span>
-                    </>
-                  ) : trueTie ? (
-                    <>
-                      <span className="history-team">Oavgjort</span>
-                      <span className="history-kind">Digitalt slutresultat</span>
-                    </>
-                  ) : (
-                    <>
-                      <span className="history-team">Vinnare saknas</span>
-                      <span className="history-kind">
-                        Historiken behöver kompletteras
-                      </span>
-                    </>
-                  )}
-                  <span className="history-kind">
-                    Plats: {location || "saknas"}
+                  <span className="history-team">
+                    {team ? team.name : trueTie ? "Oavgjort" : "Vinnare saknas"}
                   </span>
+                  <span className="history-kind">{location || "saknas"}</span>
                 </div>
-                <span
-                  className={`history-badge ${digital ? "is-digital" : ""}`}
-                >
-                  {digital ? "Digital" : team ? "Historisk" : "Saknas"}
-                </span>
               </article>
             );
           })}
