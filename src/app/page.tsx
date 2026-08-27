@@ -27,18 +27,30 @@ const competitions = [
 
 export default async function HomePage() {
   const { supabase, profile } = await requireMember();
-  const [{ data: winners }, { data: teams }, { data: closedSeasons }] = await Promise.all([
-    supabase.from("yearly_winners").select("year, team_id"),
-    supabase.from("teams").select("id, code"),
-    supabase.from("seasons").select("id, year").eq("status", "closed"),
-  ]);
+  const currentYear = new Date().getUTCFullYear();
+  const [{ data: winners }, { data: teams }, { data: closedSeasons }] =
+    await Promise.all([
+      supabase
+        .from("yearly_winners")
+        .select("year, team_id")
+        .lte("year", currentYear),
+      supabase.from("teams").select("id, code"),
+      supabase
+        .from("seasons")
+        .select("id, year")
+        .eq("status", "closed")
+        .lte("year", currentYear),
+    ]);
 
-  const teamCodeById = new Map((teams ?? []).map((team) => [team.id, team.code]));
+  const teamCodeById = new Map(
+    (teams ?? []).map((team) => [team.id, team.code]),
+  );
   const historical = (winners ?? []).map((winner) => {
     const code = winner.team_id ? teamCodeById.get(winner.team_id) : null;
     return {
       year: winner.year,
-      team: code === "MAJO" || code === "TORSK" ? (code as MarathonTeam) : null,
+      team:
+        code === "MAJO" || code === "TORSK" ? (code as MarathonTeam) : null,
     };
   });
   const digital = await Promise.all(
@@ -66,7 +78,10 @@ export default async function HomePage() {
               Registrera fångst
             </Link>
             {profile.role === "admin" && (
-              <Link className="button button-secondary" href="/admin/competition">
+              <Link
+                className="button button-secondary"
+                href="/admin/competition"
+              >
                 Administrera tävling
               </Link>
             )}
@@ -79,7 +94,10 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="section marathon-section" aria-labelledby="marathon-heading">
+      <section
+        className="section marathon-section"
+        aria-labelledby="marathon-heading"
+      >
         <div className="container">
           <p className="eyebrow">Sedan 2011</p>
           <h2 id="marathon-heading">Maratontabellen</h2>
@@ -132,7 +150,8 @@ export default async function HomePage() {
             <h3>Följ tävlingen fisk för fisk</h3>
             <p>
               Se daglig Big Five, längsta gädda, poängfördelning och
-              totalställning direkt från registrerade fångster.
+              totalställning efter att administratören har publicerat dagens
+              resultat.
             </p>
             <div className="hero-actions">
               <Link className="button button-primary" href="/results">
