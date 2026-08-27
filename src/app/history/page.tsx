@@ -105,6 +105,7 @@ export default async function HistoryPage() {
                   <span className="history-team">
                     {team ? team.name : trueTie ? "Oavgjort" : "Vinnare saknas"}
                   </span>
+                  <br />
                   <span className="history-kind">{location || "saknas"}</span>
                 </div>
               </article>
