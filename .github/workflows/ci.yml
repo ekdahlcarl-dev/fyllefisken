@@ -29,6 +29,9 @@ jobs:
       - name: Lint
         run: pnpm run lint
       - name: Formatting
-        run: pnpm run format:check
+        run: |
+          pnpm exec prettier --write src/app/admin/catches/actions.ts src/app/admin/competition/actions.ts src/app/admin/members/page.tsx src/lib/competition-visibility.ts
+          git diff -- src/app/admin/catches/actions.ts src/app/admin/competition/actions.ts src/app/admin/members/page.tsx src/lib/competition-visibility.ts
+          exit 1
       - name: Build
         run: pnpm run build
