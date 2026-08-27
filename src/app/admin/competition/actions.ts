@@ -13,6 +13,7 @@ function finish(message: string, error = false) {
   revalidatePath("/admin/competition");
   revalidatePath("/catches");
   revalidatePath("/results");
+  revalidatePath("/history");
   redirect(
     `/admin/competition?${error ? "error" : "success"}=${encodeURIComponent(message)}`,
   );
@@ -27,6 +28,7 @@ function confirmed(formData: FormData) {
 export async function createSeason(formData: FormData) {
   const { supabase } = await requireAdmin();
   const year = Number(value(formData, "year"));
+  const location = value(formData, "location").trim();
   const dates = [
     value(formData, "day_1"),
     value(formData, "day_2"),
@@ -34,18 +36,35 @@ export async function createSeason(formData: FormData) {
   ];
   if (!Number.isInteger(year) || dates.some((date) => !date))
     finish("Ange år och datum för alla tre dagar.", true);
+  if (location.length > 120)
+    finish("Tävlingsplatsen får vara högst 120 tecken.", true);
+
   const { error } = await supabase.rpc("create_competition_season", {
     competition_year: year,
+    competition_location: location,
     day_1: dates[0],
     day_2: dates[1],
     day_3: dates[2],
   });
   if (error)
     finish(
-      "Säsongen kunde inte skapas. Kontrollera år och att datumen är unika.",
+      "Säsongen kunde inte skapas. Kontrollera år, plats och att datumen är unika.",
       true,
     );
   finish(`Säsongen ${year} skapades som utkast.`);
+}
+
+export async function updateSeasonLocation(formData: FormData) {
+  const { supabase } = await requireAdmin();
+  const location = value(formData, "location").trim();
+  if (location.length > 120)
+    finish("Tävlingsplatsen får vara högst 120 tecken.", true);
+  const { error } = await supabase.rpc("set_competition_location", {
+    target_season_id: value(formData, "season_id"),
+    competition_location: location,
+  });
+  if (error) finish("Tävlingsplatsen kunde inte sparas.", true);
+  finish("Tävlingsplatsen uppdaterades.");
 }
 
 export async function configureDates(formData: FormData) {
@@ -87,8 +106,32 @@ export async function changeDayState(formData: FormData) {
     );
   finish(
     opening
-      ? "Fångstregistreringen är öppen för dagen."
-      : "Fångstregistreringen är stängd för dagen.",
+      ? action === "reopen"
+        ? "Fångstregistreringen öppnades igen och dagens resultat låstes automatiskt."
+        : "Fångstregistreringen är öppen för dagen."
+      : "Fångstregistreringen är stängd. Resultatet är fortfarande låst tills det publiceras explicit.",
+  );
+}
+
+export async function changeDayResultRelease(formData: FormData) {
+  const { supabase } = await requireAdmin();
+  confirmed(formData);
+  const release = value(formData, "operation") === "release";
+  const { error } = await supabase.rpc("set_competition_day_results_released", {
+    target_day_id: value(formData, "day_id"),
+    should_release: release,
+  });
+  if (error)
+    finish(
+      release
+        ? "Resultatet kunde inte publiceras. Kontrollera att registreringen är stängd."
+        : "Resultatet kunde inte låsas igen.",
+      true,
+    );
+  finish(
+    release
+      ? "Dagens resultat är nu synligt för båda lagen."
+      : "Dagens resultat är låst igen.",
   );
 }
 
@@ -107,7 +150,7 @@ export async function changeSeasonState(formData: FormData) {
     );
   finish(
     close
-      ? "Säsongen slutfördes och alla dagar stängdes."
+      ? "Säsongen slutfördes och alla dagar stängdes. Dagresultat publiceras fortfarande separat."
       : "Säsongen öppnades igen. Dagarna är fortsatt stängda tills de öppnas explicit.",
   );
 }

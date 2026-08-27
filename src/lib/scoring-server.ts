@@ -17,7 +17,7 @@ export async function getSeasonCompetitionScore(
       supabase.from("seasons").select("id, status").eq("id", seasonId).single(),
       supabase
         .from("competition_days")
-        .select("id, day_number, is_open")
+        .select("id, day_number, is_open, results_released_at")
         .eq("season_id", seasonId)
         .order("day_number"),
       supabase.from("teams").select("id, code").order("id"),
@@ -32,6 +32,11 @@ export async function getSeasonCompetitionScore(
   if (teamsResult.error) throw teamsResult.error;
   if (catchesResult.error) throw catchesResult.error;
 
+  const releasedDayIds = new Set(
+    (daysResult.data ?? [])
+      .filter((day) => day.results_released_at !== null)
+      .map((day) => day.id),
+  );
   const dayById = new Map(
     (daysResult.data ?? []).map((day) => [
       day.id,
@@ -42,28 +47,32 @@ export async function getSeasonCompetitionScore(
     (teamsResult.data ?? []).map((team) => [team.id, team.code as TeamCode]),
   );
 
-  const catches: ScoringCatch[] = (catchesResult.data ?? []).map((row) => {
-    const dayNumber = dayById.get(row.competition_day_id);
-    const team = teamById.get(row.team_id);
+  const catches: ScoringCatch[] = (catchesResult.data ?? [])
+    .filter((row) => releasedDayIds.has(row.competition_day_id))
+    .map((row) => {
+      const dayNumber = dayById.get(row.competition_day_id);
+      const team = teamById.get(row.team_id);
 
-    if (!dayNumber) {
-      throw new Error(`Unknown competition day: ${row.competition_day_id}`);
-    }
-    if (team !== "MAJO" && team !== "TORSK") {
-      throw new Error(`Unknown competition team: ${String(team)}`);
-    }
+      if (!dayNumber) {
+        throw new Error(`Unknown competition day: ${row.competition_day_id}`);
+      }
+      if (team !== "MAJO" && team !== "TORSK") {
+        throw new Error(`Unknown competition team: ${String(team)}`);
+      }
 
-    return {
-      dayNumber,
-      team,
-      lengthCm: Number(row.length_cm),
-    };
-  });
+      return {
+        dayNumber,
+        team,
+        lengthCm: Number(row.length_cm),
+      };
+    });
 
   const competitionComplete =
     seasonResult.data.status === "closed" &&
     (daysResult.data ?? []).length === 3 &&
-    (daysResult.data ?? []).every((day) => day.is_open === false);
+    (daysResult.data ?? []).every(
+      (day) => day.is_open === false && day.results_released_at !== null,
+    );
 
   return calculateCompetitionScore(catches, competitionComplete);
 }

@@ -1,10 +1,12 @@
 import Link from "next/link";
 import { requireAdmin } from "@/lib/auth";
 import {
+  changeDayResultRelease,
   changeDayState,
   changeSeasonState,
   configureDates,
   createSeason,
+  updateSeasonLocation,
 } from "./actions";
 
 type Params = Promise<{ error?: string; success?: string }>;
@@ -15,6 +17,7 @@ type Day = {
   competition_date: string;
   is_open: boolean;
   opened_at: string | null;
+  results_released_at: string | null;
 };
 
 const statusLabel = {
@@ -43,12 +46,12 @@ export default async function CompetitionAdminPage({
     await Promise.all([
       supabase
         .from("seasons")
-        .select("id, year, status")
+        .select("id, year, status, location")
         .order("year", { ascending: false }),
       supabase
         .from("competition_days")
         .select(
-          "id, season_id, day_number, competition_date, is_open, opened_at",
+          "id, season_id, day_number, competition_date, is_open, opened_at, results_released_at",
         )
         .order("day_number"),
       supabase
@@ -57,7 +60,7 @@ export default async function CompetitionAdminPage({
           "id, action, season_id, competition_day_id, admin_user_id, created_at",
         )
         .order("created_at", { ascending: false })
-        .limit(20),
+        .limit(30),
     ]);
 
   return (
@@ -68,14 +71,23 @@ export default async function CompetitionAdminPage({
             <p className="eyebrow">Administratör · Tävlingslivscykel</p>
             <h1>Tävlingsår</h1>
             <p>
-              Varje säsong har exakt tre dagar. Äldre säsonger ändras inte när
-              ett nytt år skapas.
+              Stängning av fångstregistrering och publicering av dagens resultat
+              är två separata steg.
             </p>
           </div>
-          <Link className="button button-light" href="/admin">
-            Till admin
-          </Link>
+          <div className="results-actions">
+            <Link className="button button-light" href="/admin/catches">
+              Korrigera fångster
+            </Link>
+            <Link className="button button-light" href="/admin/members">
+              Lagmedlemmar
+            </Link>
+            <Link className="button button-light" href="/admin">
+              Till admin
+            </Link>
+          </div>
         </div>
+
         {params.error && (
           <p className="notice notice-error" role="alert">
             {params.error}
@@ -92,12 +104,21 @@ export default async function CompetitionAdminPage({
             <p className="eyebrow">Ny säsong</p>
             <h2>Förbered ett tävlingsår</h2>
             <p className="muted">
-              Skapas som utkast med all registrering stängd.
+              Skapas som utkast med all registrering och alla resultat låsta.
             </p>
           </div>
           <label>
             År
             <input name="year" type="number" min="2011" max="2100" required />
+          </label>
+          <label>
+            Tävlingsplats
+            <input
+              name="location"
+              type="text"
+              maxLength={120}
+              placeholder="t.ex. Enköping"
+            />
           </label>
           {[1, 2, 3].map((number) => (
             <label key={number}>
@@ -122,11 +143,32 @@ export default async function CompetitionAdminPage({
                   <div>
                     <p className="eyebrow">Tävlingsår</p>
                     <h2>{season.year}</h2>
+                    <span className="muted">
+                      {season.location || "Plats saknas"}
+                    </span>
                   </div>
                   <span className={`status status-${season.status}`}>
                     {statusLabel[season.status as keyof typeof statusLabel]}
                   </span>
                 </header>
+
+                <form action={updateSeasonLocation} className="admin-date-form">
+                  <input type="hidden" name="season_id" value={season.id} />
+                  <label>
+                    Tävlingsplats
+                    <input
+                      name="location"
+                      type="text"
+                      maxLength={120}
+                      defaultValue={season.location ?? ""}
+                      placeholder="t.ex. Enköping"
+                    />
+                  </label>
+                  <button className="button button-light" type="submit">
+                    Spara plats
+                  </button>
+                </form>
+
                 {season.status === "draft" && (
                   <form action={configureDates} className="admin-date-form">
                     <input type="hidden" name="season_id" value={season.id} />
@@ -146,59 +188,96 @@ export default async function CompetitionAdminPage({
                     </button>
                   </form>
                 )}
+
                 <div className="admin-days">
-                  {seasonDays.map((day) => (
-                    <div className="admin-day" key={day.id}>
-                      <div>
-                        <strong>Dag {day.day_number}</strong>
-                        <span>{day.competition_date}</span>
+                  {seasonDays.map((day) => {
+                    const released = day.results_released_at !== null;
+                    return (
+                      <div className="admin-day" key={day.id}>
+                        <div>
+                          <strong>Dag {day.day_number}</strong>
+                          <span>{day.competition_date}</span>
+                          <span>
+                            Resultat: {released ? "publicerat" : "låst"}
+                          </span>
+                        </div>
+                        <span
+                          className={`status ${day.is_open ? "status-open" : "status-closed"}`}
+                        >
+                          {day.is_open ? "Öppen" : "Stängd"}
+                        </span>
+
+                        {season.status !== "closed" && (
+                          <form action={changeDayState}>
+                            <input type="hidden" name="day_id" value={day.id} />
+                            {day.is_open ? (
+                              <>
+                                <input
+                                  type="hidden"
+                                  name="operation"
+                                  value="close"
+                                />
+                                <Confirmation warning="Jag bekräftar att registreringen stängs. Resultatet publiceras inte automatiskt." />
+                                <button
+                                  className="button button-danger"
+                                  type="submit"
+                                >
+                                  Stäng dag
+                                </button>
+                              </>
+                            ) : (
+                              <>
+                                <input
+                                  type="hidden"
+                                  name="operation"
+                                  value={day.opened_at ? "reopen" : "open"}
+                                />
+                                {day.opened_at && (
+                                  <Confirmation warning="Jag bekräftar att dagen öppnas igen. Ett publicerat resultat låses automatiskt." />
+                                )}
+                                <button
+                                  className="button button-light"
+                                  type="submit"
+                                >
+                                  {day.opened_at ? "Öppna igen" : "Öppna dag"}
+                                </button>
+                              </>
+                            )}
+                          </form>
+                        )}
+
+                        {!day.is_open && (
+                          <form action={changeDayResultRelease}>
+                            <input type="hidden" name="day_id" value={day.id} />
+                            <input
+                              type="hidden"
+                              name="operation"
+                              value={released ? "unrelease" : "release"}
+                            />
+                            <Confirmation
+                              warning={
+                                released
+                                  ? "Jag bekräftar att dagens resultat låses igen."
+                                  : "Jag bekräftar att dagens resultat blir synligt för båda lagen."
+                              }
+                            />
+                            <button
+                              className={
+                                released
+                                  ? "button button-light"
+                                  : "button button-primary"
+                              }
+                              type="submit"
+                            >
+                              {released ? "Lås resultat" : "Publicera resultat"}
+                            </button>
+                          </form>
+                        )}
                       </div>
-                      <span
-                        className={`status ${day.is_open ? "status-open" : "status-closed"}`}
-                      >
-                        {day.is_open ? "Öppen" : "Stängd"}
-                      </span>
-                      {season.status !== "closed" && (
-                        <form action={changeDayState}>
-                          <input type="hidden" name="day_id" value={day.id} />
-                          {day.is_open ? (
-                            <>
-                              <input
-                                type="hidden"
-                                name="operation"
-                                value="close"
-                              />
-                              <Confirmation warning="Jag bekräftar att registreringen stängs." />
-                              <button
-                                className="button button-danger"
-                                type="submit"
-                              >
-                                Stäng dag
-                              </button>
-                            </>
-                          ) : (
-                            <>
-                              <input
-                                type="hidden"
-                                name="operation"
-                                value={day.opened_at ? "reopen" : "open"}
-                              />
-                              {day.opened_at && (
-                                <Confirmation warning="Jag bekräftar att en stängd dag öppnas igen." />
-                              )}
-                              <button
-                                className="button button-light"
-                                type="submit"
-                              >
-                                {day.opened_at ? "Öppna igen" : "Öppna dag"}
-                              </button>
-                            </>
-                          )}
-                        </form>
-                      )}
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
+
                 <footer className="admin-season-footer">
                   {season.status === "closed" ? (
                     <form action={changeSeasonState}>
@@ -217,7 +296,7 @@ export default async function CompetitionAdminPage({
                     <form action={changeSeasonState}>
                       <input type="hidden" name="season_id" value={season.id} />
                       <input type="hidden" name="operation" value="close" />
-                      <Confirmation warning="Jag bekräftar att säsongen slutförs och alla dagar stängs." />
+                      <Confirmation warning="Jag bekräftar att säsongen slutförs och alla dagar stängs. Resultaten publiceras separat." />
                       <button className="button button-danger" type="submit">
                         Slutför säsong
                       </button>

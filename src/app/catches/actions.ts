@@ -10,7 +10,7 @@ function asString(value: FormDataEntryValue | null) {
 
 function selectionUrl(formData: FormData, params: Record<string, string>) {
   const search = new URLSearchParams();
-  for (const key of ["season", "day", "team"]) {
+  for (const key of ["season", "day"]) {
     const value = asString(formData.get(key));
     if (value) search.set(key, value);
   }
@@ -26,25 +26,28 @@ export async function addCatch(formData: FormData) {
   const { supabase, profile } = await requireMember();
   const seasonId = asString(formData.get("season"));
   const dayId = asString(formData.get("day"));
-  const teamId = Number(asString(formData.get("team")));
   const submissionKey = asString(formData.get("submission_key"));
   const length = Number(asString(formData.get("length_cm")));
 
-  if (!seasonId || !dayId || !Number.isInteger(teamId) || !submissionKey || !validLength(length)) {
+  if (!profile.team_id) {
+    redirect(selectionUrl(formData, { error: "Du måste tilldelas ett lag av administratören innan du kan registrera fångster." }));
+  }
+
+  if (!seasonId || !dayId || !submissionKey || !validLength(length)) {
     redirect(selectionUrl(formData, { error: "Ange längden i hela centimeter (10–150 cm)." }));
   }
 
   const { error } = await supabase.from("catches").insert({
     season_id: seasonId,
     competition_day_id: dayId,
-    team_id: teamId,
+    team_id: profile.team_id,
     length_cm: length,
     created_by: profile.id,
     submission_key: submissionKey,
   });
 
   if (error && error.code !== "23505") {
-    redirect(selectionUrl(formData, { error: "Fångsten kunde inte sparas. Kontrollera att tävlingsdagen är öppen." }));
+    redirect(selectionUrl(formData, { error: "Fångsten kunde inte sparas. Kontrollera lag och att tävlingsdagen är öppen." }));
   }
 
   revalidatePath("/catches");
