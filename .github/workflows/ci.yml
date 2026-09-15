@@ -33,3 +33,12 @@ jobs:
         run: pnpm run format:check
       - name: Build
         run: pnpm run build
+      - name: Publish immutable build output
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fyllefisken-next-build
+          path: .next
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 30
