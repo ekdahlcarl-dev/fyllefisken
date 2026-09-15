@@ -33,6 +33,27 @@ jobs:
         run: pnpm run format:check
       - name: Build
         run: pnpm run build
+      - name: Prepare ORBIT evidence
+        if: success()
+        run: |
+          printf '%s\n' '{"provider":"github-actions","checks":["typecheck","lint","format"],"state":"passed"}' > orbit-l1.json
+          printf '%s\n' '{"provider":"github-actions","suite":"automated-tests","state":"passed"}' > orbit-l2.json
+      - name: Publish L1 evidence
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: orbit-evidence-l1-github-actions
+          path: orbit-l1.json
+          if-no-files-found: error
+          retention-days: 30
+      - name: Publish L2 evidence
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: orbit-evidence-l2-automated-tests
+          path: orbit-l2.json
+          if-no-files-found: error
+          retention-days: 30
       - name: Publish immutable build output
         if: success()
         uses: actions/upload-artifact@v4
