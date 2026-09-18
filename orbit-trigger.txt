@@ -1,0 +1,2 @@
+ORBIT build trigger test
+Created to verify that ORBIT detects a new commit and starts the configured build pipeline.
